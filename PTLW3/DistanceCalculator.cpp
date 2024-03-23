@@ -64,7 +64,7 @@ void AdjBuilder(HWND hwnd)
 }
 
 
-LRESULT CALLBACK BaseProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
+LRESULT CALLBACK ParentProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 	// All bullshit handler
 	std::string message;
@@ -92,19 +92,43 @@ LRESULT CALLBACK BaseProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 	default:return DefWindowProc(hWnd, msg, wp, lp);
 	}
 }
+LRESULT CALLBACK ChildProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
+{
+	// All bullshit handler
+	std::string message;
+	int adjValue;
+
+	switch (msg)
+	{
+	case WM_CREATE:
+		break;
+	
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+	default:return DefWindowProc(hWnd, msg, wp, lp);
+	}
+}
+
+
 
 int WINAPI WinMain(HINSTANCE hInst,HINSTANCE hPrevInst,LPSTR args, int ncmdshow)
 {
 	WNDCLASS ParentWindow = BaseWindow((HBRUSH)COLOR_WINDOW, LoadCursor(NULL, IDC_ARROW), hInst, LoadIcon(NULL, IDI_WINLOGO),
-		L"ParentWindow", BaseProcedure);
+		L"ParentWindow", ParentProcedure);
+
+	WNDCLASS ChildWindow = BaseWindow((HBRUSH)COLOR_WINDOW, LoadCursor(NULL, IDC_ARROW), hInst, LoadIcon(NULL, IDI_WINLOGO),
+		L"ChildWindow",ChildProcedure);
 
 	
 	if (!RegisterClassW(&ParentWindow)) { return -1; }
+	if (!RegisterClassW(&ChildWindow)) { return -1; }
 
 	MSG msg = { 0 };
 	
 
-	CreateWindow(L"ParentWindow",L"ADJ Matrix",  WS_OVERLAPPEDWINDOW | WS_VISIBLE, 100, 100, 500, 500, NULL, NULL, NULL, NULL);
+	HWND pw = CreateWindow(L"ParentWindow",L"ADJ Matrix",  WS_OVERLAPPEDWINDOW | WS_VISIBLE, 100, 100, 500, 500, NULL, NULL, NULL, NULL);
+	CreateWindow(L"ChildWindow", L"Distance Calculator", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 600, 100, 500, 500, pw, NULL, NULL, NULL);
 
 	while (GetMessage(&msg, NULL, NULL, NULL))
 	{
