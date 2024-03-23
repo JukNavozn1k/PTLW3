@@ -1,4 +1,15 @@
-#include <Windows.h>
+﻿#include <Windows.h>
+
+// stupid init
+int nodes = 3;
+HWND** adj_matrix;
+
+
+int GetValueFromEditControl(HWND hWndEdit) {
+	char buffer[10]; // Max memory for my computer
+	GetWindowTextA(hWndEdit, buffer, sizeof(buffer));
+	return atoi(buffer); // Less Bullshit for Djikstra
+}
 
 WNDCLASS BaseWindow(HBRUSH BGColor, HCURSOR Cursor, HINSTANCE hInst, HICON Icon, LPCWSTR Name, WNDPROC Procedure)
 {
@@ -18,13 +29,13 @@ WNDCLASS BaseWindow(HBRUSH BGColor, HCURSOR Cursor, HINSTANCE hInst, HICON Icon,
 void AdjBuilder(HWND hwnd)
 {
 	// Poopy grid
-	
-	for (int i = 0; i < 3; i ++)
+	adj_matrix = new HWND * [nodes];
+	for (int i = 0; i < nodes; i ++)
 	{
-
-		for (int j = 0; j < 3; j ++)
+		adj_matrix[i] = new HWND[nodes];
+		for (int j = 0; j < nodes; j ++)
 		{
-			CreateWindowA("edit", "", WS_VISIBLE | WS_CHILD | ES_NUMBER | ES_CENTER, 200 + 40 * i , 200 + 40 * j, 30, 30, hwnd, NULL, NULL, NULL);
+			adj_matrix[i][j] = CreateWindowA("edit", "", WS_VISIBLE | WS_CHILD | ES_NUMBER | ES_CENTER, 200 + 40 * i , 200 + 40 * j, 30, 30, hwnd, NULL, NULL, NULL);
 		}
 	}
 
