@@ -1,11 +1,16 @@
 ﻿#include <Windows.h>
 
+
+// stupid define
+#define OnEnterButtonClick	1
+
 // stupid init
 int nodes = 3;
+
 HWND** adj_matrix;
 
 
-int GetValueFromEditControl(HWND hWndEdit) {
+int GetAdjVal(HWND hWndEdit) {
 	char buffer[10]; // Max memory for my computer
 	GetWindowTextA(hWndEdit, buffer, sizeof(buffer));
 	return atoi(buffer); // Less Bullshit for Djikstra
@@ -39,18 +44,27 @@ void AdjBuilder(HWND hwnd)
 		}
 	}
 
-	CreateWindowA("button", "Enter", WS_VISIBLE | WS_CHILD, 5, 50, 100, 25, hwnd, NULL, NULL, NULL);
+	CreateWindowA("button", "Enter", WS_VISIBLE | WS_CHILD, 5, 50, 100, 25, hwnd, (HMENU) OnEnterButtonClick, NULL, NULL);
 }
 
 
 LRESULT CALLBACK BaseProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 	// All bullshit handler
-
+	
 	switch (msg)
 	{
 	case WM_CREATE:
 		AdjBuilder(hWnd);
+		break;
+	case WM_COMMAND:
+		switch (wp) 
+		{
+		case OnEnterButtonClick:
+			
+			break;
+		default: break;
+		}
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
