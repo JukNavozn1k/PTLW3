@@ -18,11 +18,17 @@ WNDCLASS BaseWindow(HBRUSH BGColor, HCURSOR Cursor, HINSTANCE hInst, HICON Icon,
 void AdjBuilder(HWND hwnd)
 {
 	// Poopy grid
-	CreateWindowA("static", "ADJ Matrix", WS_VISIBLE | WS_CHILD, 5, 5, 100, 100, hwnd, NULL, NULL, NULL);
+	
+	for (int i = 0; i < 3; i ++)
+	{
 
-	// for ... 
+		for (int j = 0; j < 3; j ++)
+		{
+			CreateWindowA("edit", "", WS_VISIBLE | WS_CHILD | ES_NUMBER | ES_CENTER, 200 + 40 * i , 200 + 40 * j, 30, 30, hwnd, NULL, NULL, NULL);
+		}
+	}
 
-	CreateWindowA("button", "Enter", WS_VISIBLE | WS_CHILD, 5, 50, 100, 50, hwnd, NULL, NULL, NULL);
+	CreateWindowA("button", "Enter", WS_VISIBLE | WS_CHILD, 5, 50, 100, 25, hwnd, NULL, NULL, NULL);
 }
 
 
