@@ -43,17 +43,24 @@ WNDCLASS BaseWindow(HBRUSH BGColor, HCURSOR Cursor, HINSTANCE hInst, HICON Icon,
 void AdjBuilder(HWND hwnd)
 {
 	// Poopy grid
+	std::string str_num;
+	
+
 	adj_matrix = new HWND * [nodes];
 	for (int i = 0; i < nodes; i ++)
 	{
 		adj_matrix[i] = new HWND[nodes];
+		str_num = std::to_string(i);
+		CreateWindowA("static", str_num.c_str(), WS_VISIBLE | WS_CHILD | ES_NUMBER | ES_CENTER, 200 - 40, 200 + i * 40, 30, 30, hwnd, NULL, NULL, NULL);
+
+		CreateWindowA("static", str_num.c_str(), WS_VISIBLE | WS_CHILD | ES_NUMBER | ES_CENTER, 200 + 40*i, 200 - 40, 30, 30, hwnd, NULL, NULL, NULL);
 		for (int j = 0; j < nodes; j ++)
 		{
 			adj_matrix[i][j] = CreateWindowA("edit", "", WS_VISIBLE | WS_CHILD | ES_NUMBER | ES_CENTER, 200 + 40 * i , 200 + 40 * j, 30, 30, hwnd, NULL, NULL, NULL);
 		}
 	}
 
-	CreateWindowA("button", "Enter", WS_VISIBLE | WS_CHILD, 5, 50, 100, 25, hwnd, (HMENU) OnEnterButtonClick, NULL, NULL);
+	CreateWindowA("button", "Enter", WS_VISIBLE | WS_CHILD, 200, 200 + 40*nodes, 40*nodes, 25, hwnd, (HMENU) OnEnterButtonClick, NULL, NULL);
 }
 
 
