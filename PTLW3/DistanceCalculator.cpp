@@ -1,4 +1,7 @@
 ﻿#include <Windows.h>
+#include <cstdlib> // for atoi
+#include <string> // for std::string
+#include <iostream>
 
 
 // stupid define
@@ -11,9 +14,15 @@ HWND** adj_matrix;
 
 
 int GetAdjVal(HWND hWndEdit) {
-	char buffer[10]; // Max memory for my computer
-	GetWindowTextA(hWndEdit, buffer, sizeof(buffer));
-	return atoi(buffer); // Less Bullshit for Djikstra
+	char buffer[10]; // My PC can't handle more ((( 
+	int adjValue = 0; 
+
+	if (GetWindowTextA(hWndEdit, buffer, sizeof(buffer)) > 0) {
+		// Bullshit check
+		adjValue = atoi(buffer);
+	}
+
+	return adjValue;
 }
 
 WNDCLASS BaseWindow(HBRUSH BGColor, HCURSOR Cursor, HINSTANCE hInst, HICON Icon, LPCWSTR Name, WNDPROC Procedure)
@@ -51,7 +60,9 @@ void AdjBuilder(HWND hwnd)
 LRESULT CALLBACK BaseProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 	// All bullshit handler
-	
+	std::string message;
+	int adjValue;
+
 	switch (msg)
 	{
 	case WM_CREATE:
@@ -61,7 +72,9 @@ LRESULT CALLBACK BaseProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		switch (wp) 
 		{
 		case OnEnterButtonClick:
-			
+			adjValue = GetAdjVal(adj_matrix[0][0]);
+			message =  "Adjusted Value: " + std::to_string(adjValue);
+			MessageBoxA(NULL, message.c_str(), "Adjusted Value", MB_OK | MB_ICONINFORMATION);
 			break;
 		default: break;
 		}
