@@ -57,7 +57,14 @@ void AdjBuilder(HWND hwnd)
 		CreateWindowA("static", str_num.c_str(), WS_VISIBLE | WS_CHILD | ES_NUMBER | ES_CENTER, 200 + 40*i, 200 - 40, 30, 30, hwnd, NULL, NULL, NULL);
 		for (int j = 0; j < nodes; j ++)
 		{
-			adj_matrix[i][j] = CreateWindowA("edit", "", WS_VISIBLE | WS_CHILD | ES_NUMBER | ES_CENTER, 200 + 40 * i , 200 + 40 * j, 30, 30, hwnd, NULL, NULL, NULL);
+			if (i == j)
+			{
+				adj_matrix[i][j] = CreateWindowA("edit", "0", WS_VISIBLE | WS_CHILD | ES_NUMBER | ES_CENTER | ES_READONLY, 200 + 40 * i, 200 + 40 * j, 30, 30, hwnd, NULL, NULL, NULL);
+			}
+			else 
+			{
+				adj_matrix[i][j] = CreateWindowA("edit", "", WS_VISIBLE | WS_CHILD | ES_NUMBER | ES_CENTER, 200 + 40 * i, 200 + 40 * j, 30, 30, hwnd, NULL, NULL, NULL);
+			}
 		}
 	}
 
@@ -68,7 +75,7 @@ void DjikstraBuilder(HWND hwnd)
 	// info labels 4 users
 	CreateWindowA("static", "Start point:", WS_VISIBLE | WS_CHILD | ES_CENTER, 200, 200 , 45, 30, hwnd, NULL, NULL, NULL);
 	// edit labels 
-	CreateWindowA("edit", "", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 260, 200, 30, 30, hwnd, NULL, NULL, NULL);
+	CreateWindowA("edit", "0", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 260, 200, 30, 30, hwnd, NULL, NULL, NULL);
 	CreateWindowA("button", "Calculate", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 200, 240, 90, 30, hwnd, (HMENU) OnCalculateButtonClick, NULL, NULL);
 }
 
