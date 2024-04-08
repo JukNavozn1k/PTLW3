@@ -6,6 +6,7 @@
 
 // stupid define
 #define OnEnterButtonClick	1
+# define OnCalculateButtonClick	2
 
 // stupid init
 int nodes = 3;
@@ -68,7 +69,7 @@ void DjikstraBuilder(HWND hwnd)
 	CreateWindowA("static", "Start point:", WS_VISIBLE | WS_CHILD | ES_CENTER, 200, 200 , 45, 30, hwnd, NULL, NULL, NULL);
 	// edit labels 
 	CreateWindowA("edit", "", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 260, 200, 30, 30, hwnd, NULL, NULL, NULL);
-	CreateWindowA("button", "Calculate", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 200, 240, 90, 30, hwnd, NULL, NULL, NULL);
+	CreateWindowA("button", "Calculate", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 200, 240, 90, 30, hwnd, (HMENU) OnCalculateButtonClick, NULL, NULL);
 }
 
 
@@ -111,7 +112,16 @@ LRESULT CALLBACK ChildProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 	case WM_CREATE:
 		DjikstraBuilder(hWnd);
 		break;
-	
+	case WM_COMMAND:
+		switch (wp)
+		{
+		case OnCalculateButtonClick:
+			
+			MessageBoxA(NULL, "Some data...", "Distances", MB_OK | MB_ICONINFORMATION);
+			break;
+		default: break;
+		}
+		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
