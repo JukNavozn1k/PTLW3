@@ -62,6 +62,14 @@ void AdjBuilder(HWND hwnd)
 
 	CreateWindowA("button", "Enter", WS_VISIBLE | WS_CHILD, 200, 200 + 40*nodes, 40*nodes, 25, hwnd, (HMENU) OnEnterButtonClick, NULL, NULL);
 }
+void DjikstraBuilder(HWND hwnd)
+{
+	// info labels 4 users
+	CreateWindowA("static", "Start point:", WS_VISIBLE | WS_CHILD | ES_CENTER, 200, 200 , 45, 30, hwnd, NULL, NULL, NULL);
+	// edit labels 
+	CreateWindowA("edit", "", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 260, 200, 30, 30, hwnd, NULL, NULL, NULL);
+	CreateWindowA("button", "Calculate", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 200, 240, 90, 30, hwnd, NULL, NULL, NULL);
+}
 
 
 LRESULT CALLBACK ParentProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
@@ -101,6 +109,7 @@ LRESULT CALLBACK ChildProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 	switch (msg)
 	{
 	case WM_CREATE:
+		DjikstraBuilder(hWnd);
 		break;
 	
 	case WM_DESTROY:
