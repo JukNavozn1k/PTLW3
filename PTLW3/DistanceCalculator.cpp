@@ -3,34 +3,25 @@
 #include <string> // for std::string
 #include <iostream>
 
-
-#include <limits>
 #include <vector>
-
-#include <sstream>
-
+#include <queue>
 
 // stupid define
 #define OnEnterButtonClick	1
 # define OnCalculateButtonClick	2
 
 
-INT INF = 999;
+INT INF = 9999;
 
-
+using namespace std;
+ 
 // stupid init
 int nodes = 3;
 
 HWND** adj_matrix;
 
 
-std::string distancesToStr(const int* distances, int size) {
-	std::stringstream ss;
-	for (int i = 0; i < size; ++i) {
-		ss << "idx" << i << ": " << distances[i] << " ";
-	}
-	return ss.str();
-}
+
 
 
 int GetAdjVal(HWND hWndEdit) {
@@ -45,45 +36,36 @@ int GetAdjVal(HWND hWndEdit) {
 	return adjValue;
 }
 
-int* Dijkstra(HWND** adj_matrix, int nodes, int start_node) {
-	// Initialize distances array
-	int* distances = new int[nodes];
-	for (int i = 0; i < nodes; ++i) {
-		distances[i] = INF;
-	}
-	distances[start_node] = 0;
+vector<int> dijkstra(const vector<vector<HWND>>& graph, int source) {
+    int n = nodes;
+	int adj_val;
+    vector<int> dist(n, INF);
+    vector<bool> visited(n, false);
+    dist[source] = 0;
 
-	// Initialize visited array
-	bool* visited = new bool[nodes] {false};
+    for (int count = 0; count < n - 1; ++count) {
+        int minDist = INF;
+        int u = -1;
 
-	// Dijkstra's algorithm
-	for (int count = 0; count < nodes - 1; ++count) {
-		// Find the vertex with the minimum distance
-		int min_distance = INF;
-		int min_index = -1; // Initialize min_index
-		for (int v = 0; v < nodes; ++v) {
-			if (!visited[v] && distances[v] <= min_distance) {
-				min_distance = distances[v];
-				min_index = v;
-			}
-		}
+        for (int v = 0; v < n; ++v) {
+            if (!visited[v] && dist[v] < minDist) {
+                minDist = dist[v];
+                u = v;
+            }
+        }
 
-		// Mark the selected vertex as visited
-		visited[min_index] = true;
+        if (u == -1) break; // If there is no path from source to remaining vertices
 
-		// Update distances for adjacent vertices
-		for (int v = 0; v < nodes; ++v) {
-			if (!visited[v] && adj_matrix[min_index][v] != NULL) {
-				int weight = GetAdjVal(adj_matrix[min_index][v]);
-				if (distances[min_index] != INF && distances[min_index] + weight < distances[v]) {
-					distances[v] = distances[min_index] + weight;
-				}
-			}
-		}
-	}
+        visited[u] = true;
 
-	delete[] visited;
-	return distances;
+        for (int v = 0; v < n; ++v) {
+			adj_val = GetAdjVal(adj_matrix[u][v]);
+            if (!visited[v] && adj_val && dist[u] != INF && dist[u] + adj_val < dist[v]) {
+				dist[v] = dist[u] + adj_val;
+            }
+        }
+    }
+    return dist;
 }
 
 
@@ -105,14 +87,14 @@ WNDCLASS BaseWindow(HBRUSH BGColor, HCURSOR Cursor, HINSTANCE hInst, HICON Icon,
 void AdjBuilder(HWND hwnd)
 {
 	// Poopy grid
-	std::string str_num;
+	string str_num;
 	
 
 	adj_matrix = new HWND * [nodes];
 	for (int i = 0; i < nodes; i ++)
 	{
 		adj_matrix[i] = new HWND[nodes];
-		str_num = std::to_string(i);
+		str_num = to_string(i);
 		CreateWindowA("static", str_num.c_str(), WS_VISIBLE | WS_CHILD | ES_NUMBER | ES_CENTER, 200 - 40, 200 + i * 40, 30, 30, hwnd, NULL, NULL, NULL);
 
 		CreateWindowA("static", str_num.c_str(), WS_VISIBLE | WS_CHILD | ES_NUMBER | ES_CENTER, 200 + 40*i, 200 - 40, 30, 30, hwnd, NULL, NULL, NULL);
@@ -144,7 +126,7 @@ void DjikstraBuilder(HWND hwnd)
 LRESULT CALLBACK ParentProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 	// All bullshit handler
-	std::string message;
+	string message;
 	int adjValue;
 
 	switch (msg)
@@ -157,7 +139,7 @@ LRESULT CALLBACK ParentProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		{
 		case OnEnterButtonClick:
 			adjValue = GetAdjVal(adj_matrix[0][1]);
-			message =  "Adjusted Value: " + std::to_string(adjValue);
+			message =  "Adjusted Value: " + to_string(adjValue);
 			MessageBoxA(NULL, message.c_str(), "Adjusted Value", MB_OK | MB_ICONINFORMATION);
 			break;
 		default: break;
@@ -172,7 +154,7 @@ LRESULT CALLBACK ParentProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 LRESULT CALLBACK ChildProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 	// All bullshit handler
-	std::string message;
+	string message;
 	int adjValue;
 	int start_node;// Example start node
 	int* distances; 
@@ -186,9 +168,9 @@ LRESULT CALLBACK ChildProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		{
 		case OnCalculateButtonClick:
 			start_node = 0;
-			distances = Dijkstra(adj_matrix, nodes, start_node);
-			message = distancesToStr(distances, nodes);
-			MessageBoxA(NULL, message.c_str(), "Distances", MB_OK | MB_ICONINFORMATION);
+			
+			// message = distancesToStr(distances, nodes);
+			//MessageBoxA(NULL, message.c_str(), "Distances", MB_OK | MB_ICONINFORMATION);
 			break;
 		default: break;
 		}
