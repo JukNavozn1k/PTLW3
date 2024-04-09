@@ -7,6 +7,9 @@
 #include <limits>
 #include <vector>
 
+#include <sstream>
+
+
 // stupid define
 #define OnEnterButtonClick	1
 # define OnCalculateButtonClick	2
@@ -21,7 +24,13 @@ int nodes = 3;
 HWND** adj_matrix;
 
 
-
+std::string distancesToStr(const int* distances, int size) {
+	std::stringstream ss;
+	for (int i = 0; i < size; ++i) {
+		ss << "idx" << i << ": " << distances[i] << " ";
+	}
+	return ss.str();
+}
 
 
 int GetAdjVal(HWND hWndEdit) {
@@ -147,7 +156,7 @@ LRESULT CALLBACK ParentProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		switch (wp) 
 		{
 		case OnEnterButtonClick:
-			adjValue = GetAdjVal(adj_matrix[0][0]);
+			adjValue = GetAdjVal(adj_matrix[0][1]);
 			message =  "Adjusted Value: " + std::to_string(adjValue);
 			MessageBoxA(NULL, message.c_str(), "Adjusted Value", MB_OK | MB_ICONINFORMATION);
 			break;
@@ -178,7 +187,8 @@ LRESULT CALLBACK ChildProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		case OnCalculateButtonClick:
 			start_node = 0;
 			distances = Dijkstra(adj_matrix, nodes, start_node);
-			MessageBoxA(NULL, "Some data...", "Distances", MB_OK | MB_ICONINFORMATION);
+			message = distancesToStr(distances, nodes);
+			MessageBoxA(NULL, message.c_str(), "Distances", MB_OK | MB_ICONINFORMATION);
 			break;
 		default: break;
 		}
@@ -207,8 +217,8 @@ int WINAPI WinMain(HINSTANCE hInst,HINSTANCE hPrevInst,LPSTR args, int ncmdshow)
 	MSG msg = { 0 };
 	
 
-	HWND pw = CreateWindow(L"ParentWindow",L"ADJ Matrix",  WS_OVERLAPPEDWINDOW | WS_VISIBLE, 100, 100, 500, 500, NULL, NULL, NULL, NULL);
-	CreateWindow(L"ChildWindow", L"Distance Calculator", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 600, 100, 500, 500, pw, NULL, NULL, NULL);
+	CreateWindow(L"ParentWindow",L"ADJ Matrix",  WS_OVERLAPPEDWINDOW | WS_VISIBLE, 100, 100, 500, 500, NULL, NULL, NULL, NULL);
+	CreateWindow(L"ChildWindow", L"Distance Calculator", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 600, 100, 500, 500, NULL, NULL, NULL, NULL);
 
 	while (GetMessage(&msg, NULL, NULL, NULL))
 	{
