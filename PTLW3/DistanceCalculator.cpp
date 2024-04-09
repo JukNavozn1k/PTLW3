@@ -4,14 +4,24 @@
 #include <iostream>
 
 
+#include <limits>
+#include <vector>
+
 // stupid define
 #define OnEnterButtonClick	1
 # define OnCalculateButtonClick	2
+
+
+INT INF = 999;
+
 
 // stupid init
 int nodes = 3;
 
 HWND** adj_matrix;
+
+
+
 
 
 int GetAdjVal(HWND hWndEdit) {
@@ -25,6 +35,48 @@ int GetAdjVal(HWND hWndEdit) {
 
 	return adjValue;
 }
+
+int* Dijkstra(HWND** adj_matrix, int nodes, int start_node) {
+	// Initialize distances array
+	int* distances = new int[nodes];
+	for (int i = 0; i < nodes; ++i) {
+		distances[i] = INF;
+	}
+	distances[start_node] = 0;
+
+	// Initialize visited array
+	bool* visited = new bool[nodes] {false};
+
+	// Dijkstra's algorithm
+	for (int count = 0; count < nodes - 1; ++count) {
+		// Find the vertex with the minimum distance
+		int min_distance = INF;
+		int min_index = -1; // Initialize min_index
+		for (int v = 0; v < nodes; ++v) {
+			if (!visited[v] && distances[v] <= min_distance) {
+				min_distance = distances[v];
+				min_index = v;
+			}
+		}
+
+		// Mark the selected vertex as visited
+		visited[min_index] = true;
+
+		// Update distances for adjacent vertices
+		for (int v = 0; v < nodes; ++v) {
+			if (!visited[v] && adj_matrix[min_index][v] != NULL) {
+				int weight = GetAdjVal(adj_matrix[min_index][v]);
+				if (distances[min_index] != INF && distances[min_index] + weight < distances[v]) {
+					distances[v] = distances[min_index] + weight;
+				}
+			}
+		}
+	}
+
+	delete[] visited;
+	return distances;
+}
+
 
 WNDCLASS BaseWindow(HBRUSH BGColor, HCURSOR Cursor, HINSTANCE hInst, HICON Icon, LPCWSTR Name, WNDPROC Procedure)
 {
@@ -113,7 +165,8 @@ LRESULT CALLBACK ChildProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 	// All bullshit handler
 	std::string message;
 	int adjValue;
-
+	int start_node;// Example start node
+	int* distances; 
 	switch (msg)
 	{
 	case WM_CREATE:
@@ -123,7 +176,8 @@ LRESULT CALLBACK ChildProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		switch (wp)
 		{
 		case OnCalculateButtonClick:
-			
+			start_node = 0;
+			distances = Dijkstra(adj_matrix, nodes, start_node);
 			MessageBoxA(NULL, "Some data...", "Distances", MB_OK | MB_ICONINFORMATION);
 			break;
 		default: break;
