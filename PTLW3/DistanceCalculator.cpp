@@ -5,7 +5,7 @@
 
 #include <vector>
 #include <queue>
-
+#include <sstream>
 // stupid define
 #define OnEnterButtonClick	1
 # define OnCalculateButtonClick	2
@@ -21,7 +21,16 @@ int nodes = 3;
 HWND** adj_matrix;
 
 
-
+string convertToCString(const vector<int>& dist) {
+	stringstream ss;
+	for (int i = 0; i < dist.size(); ++i) {
+		ss << dist[i];
+		if (i != dist.size() - 1) {
+			ss << ", ";
+		}
+	}
+	return ss.str();
+}
 
 
 int GetAdjVal(HWND hWndEdit) {
@@ -36,7 +45,7 @@ int GetAdjVal(HWND hWndEdit) {
 	return adjValue;
 }
 
-vector<int> dijkstra(const vector<vector<HWND>>& graph, int source) {
+vector<int> dijkstra(HWND** adj_matrix, int source) {
     int n = nodes;
 	int adj_val;
     vector<int> dist(n, INF);
@@ -60,6 +69,7 @@ vector<int> dijkstra(const vector<vector<HWND>>& graph, int source) {
 
         for (int v = 0; v < n; ++v) {
 			adj_val = GetAdjVal(adj_matrix[u][v]);
+			if (adj_val == 0) { adj_val = INF; }
             if (!visited[v] && adj_val && dist[u] != INF && dist[u] + adj_val < dist[v]) {
 				dist[v] = dist[u] + adj_val;
             }
@@ -157,7 +167,7 @@ LRESULT CALLBACK ChildProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 	string message;
 	int adjValue;
 	int start_node;// Example start node
-	int* distances; 
+	vector<int> dist;
 	switch (msg)
 	{
 	case WM_CREATE:
@@ -168,9 +178,9 @@ LRESULT CALLBACK ChildProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		{
 		case OnCalculateButtonClick:
 			start_node = 0;
-			
-			// message = distancesToStr(distances, nodes);
-			//MessageBoxA(NULL, message.c_str(), "Distances", MB_OK | MB_ICONINFORMATION);
+			dist = dijkstra(adj_matrix, 0);
+			message = convertToCString(dist);
+			MessageBoxA(NULL, message.c_str(), "Distances", MB_OK | MB_ICONINFORMATION);
 			break;
 		default: break;
 		}
