@@ -112,11 +112,11 @@ void AdjBuilder(HWND hwnd)
 		{
 			if (i == j)
 			{
-				adj_matrix[i][j] = CreateWindowA("edit", "0", WS_VISIBLE | WS_CHILD | ES_NUMBER | ES_CENTER | ES_READONLY, 200 + 40 * i, 200 + 40 * j, 30, 30, hwnd, NULL, NULL, NULL);
+				adj_matrix[i][j] = CreateWindowA("edit", "0", WS_VISIBLE | WS_CHILD | ES_NUMBER | ES_CENTER | ES_READONLY, 200 + 40 * j, 200 + 40 * i, 30, 30, hwnd, NULL, NULL, NULL);
 			}
 			else 
 			{
-				adj_matrix[i][j] = CreateWindowA("edit", "", WS_VISIBLE | WS_CHILD | ES_NUMBER | ES_CENTER, 200 + 40 * i, 200 + 40 * j, 30, 30, hwnd, NULL, NULL, NULL);
+				adj_matrix[i][j] = CreateWindowA("edit", "", WS_VISIBLE | WS_CHILD | ES_NUMBER | ES_CENTER, 200 + 40 * j, 200 + 40 * i, 30, 30, hwnd, NULL, NULL, NULL);
 			}
 		}
 	}
