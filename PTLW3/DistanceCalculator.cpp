@@ -34,11 +34,11 @@ string convertToCString(const vector<int>& dist) {
 
 
 int GetAdjVal(HWND hWndEdit) {
-	char buffer[10]; // My PC can't handle more ((( 
+	char buffer[10];
 	int adjValue = 0; 
 
 	if (GetWindowTextA(hWndEdit, buffer, sizeof(buffer)) > 0) {
-		// Bullshit check
+		
 		adjValue = atoi(buffer);
 	}
 
@@ -96,9 +96,8 @@ WNDCLASS BaseWindow(HBRUSH BGColor, HCURSOR Cursor, HINSTANCE hInst, HICON Icon,
 
 void AdjBuilder(HWND hwnd)
 {
-	// Poopy grid
-	string str_num;
 	
+	string str_num;
 
 	adj_matrix = new HWND * [nodes];
 	for (int i = 0; i < nodes; i ++)
@@ -120,8 +119,6 @@ void AdjBuilder(HWND hwnd)
 			}
 		}
 	}
-
-	CreateWindowA("button", "Enter", WS_VISIBLE | WS_CHILD, 200, 200 + 40*nodes, 40*nodes, 25, hwnd, (HMENU) OnEnterButtonClick, NULL, NULL);
 }
 void DjikstraBuilder(HWND hwnd)
 {
@@ -135,7 +132,6 @@ void DjikstraBuilder(HWND hwnd)
 
 LRESULT CALLBACK ParentProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
-	// All bullshit handler
 	string message;
 	int adjValue;
 
@@ -143,17 +139,6 @@ LRESULT CALLBACK ParentProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 	{
 	case WM_CREATE:
 		AdjBuilder(hWnd);
-		break;
-	case WM_COMMAND:
-		switch (wp) 
-		{
-		case OnEnterButtonClick:
-			adjValue = GetAdjVal(adj_matrix[0][1]);
-			message =  "Adjusted Value: " + to_string(adjValue);
-			MessageBoxA(NULL, message.c_str(), "Adjusted Value", MB_OK | MB_ICONINFORMATION);
-			break;
-		default: break;
-		}
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -163,7 +148,6 @@ LRESULT CALLBACK ParentProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 }
 LRESULT CALLBACK ChildProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
-	// All bullshit handler
 	string message;
 	int adjValue;
 	int start_node;// Example start node
