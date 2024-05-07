@@ -19,7 +19,7 @@ using namespace std;
 int nodes = 3;
 
 HWND** adj_matrix;
-
+HWND startVertex;
 
 string convertToCString(const vector<int>& dist) {
 	stringstream ss;
@@ -33,17 +33,20 @@ string convertToCString(const vector<int>& dist) {
 }
 
 
-int GetAdjVal(HWND hWndEdit) {
-	char buffer[10]; // My PC can't handle more ((( 
+int GetVal(HWND hWndEdit) {
+	char buffer[10];
 	int adjValue = 0; 
 
 	if (GetWindowTextA(hWndEdit, buffer, sizeof(buffer)) > 0) {
-		// Bullshit check
+		
 		adjValue = atoi(buffer);
 	}
 
 	return adjValue;
 }
+
+
+
 
 vector<int> dijkstra(HWND** adj_matrix, int source) {
     int n = nodes;
@@ -68,7 +71,7 @@ vector<int> dijkstra(HWND** adj_matrix, int source) {
         visited[u] = true;
 
         for (int v = 0; v < n; ++v) {
-			adj_val = GetAdjVal(adj_matrix[u][v]);
+			adj_val = GetVal(adj_matrix[u][v]);
 			if (adj_val == 0) { adj_val = INF; }
             if (!visited[v] && adj_val && dist[u] != INF && dist[u] + adj_val < dist[v]) {
 				dist[v] = dist[u] + adj_val;
@@ -96,10 +99,9 @@ WNDCLASS BaseWindow(HBRUSH BGColor, HCURSOR Cursor, HINSTANCE hInst, HICON Icon,
 
 void AdjBuilder(HWND hwnd)
 {
-	// Poopy grid
+	
 	string str_num;
 	
-
 	adj_matrix = new HWND * [nodes];
 	for (int i = 0; i < nodes; i ++)
 	{
@@ -120,22 +122,20 @@ void AdjBuilder(HWND hwnd)
 			}
 		}
 	}
-
-	CreateWindowA("button", "Enter", WS_VISIBLE | WS_CHILD, 200, 200 + 40*nodes, 40*nodes, 25, hwnd, (HMENU) OnEnterButtonClick, NULL, NULL);
 }
 void DjikstraBuilder(HWND hwnd)
 {
+	
 	// info labels 4 users
 	CreateWindowA("static", "Start point:", WS_VISIBLE | WS_CHILD | ES_CENTER, 200, 200 , 45, 30, hwnd, NULL, NULL, NULL);
 	// edit labels 
-	CreateWindowA("edit", "0", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 260, 200, 30, 30, hwnd, NULL, NULL, NULL);
+	startVertex =  CreateWindowA("edit", "0", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 260, 200, 30, 30, hwnd, NULL, NULL, NULL);
 	CreateWindowA("button", "Calculate", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 200, 240, 90, 30, hwnd, (HMENU) OnCalculateButtonClick, NULL, NULL);
 }
 
 
 LRESULT CALLBACK ParentProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
-	// All bullshit handler
 	string message;
 	int adjValue;
 
@@ -143,17 +143,6 @@ LRESULT CALLBACK ParentProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 	{
 	case WM_CREATE:
 		AdjBuilder(hWnd);
-		break;
-	case WM_COMMAND:
-		switch (wp) 
-		{
-		case OnEnterButtonClick:
-			adjValue = GetAdjVal(adj_matrix[0][1]);
-			message =  "Adjusted Value: " + to_string(adjValue);
-			MessageBoxA(NULL, message.c_str(), "Adjusted Value", MB_OK | MB_ICONINFORMATION);
-			break;
-		default: break;
-		}
 		break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
@@ -163,7 +152,6 @@ LRESULT CALLBACK ParentProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 }
 LRESULT CALLBACK ChildProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
-	// All bullshit handler
 	string message;
 	int adjValue;
 	int start_node;// Example start node
@@ -177,8 +165,8 @@ LRESULT CALLBACK ChildProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		switch (wp)
 		{
 		case OnCalculateButtonClick:
-			start_node = 0;
-			dist = dijkstra(adj_matrix, 0);
+			start_node = GetVal(startVertex);
+			dist = dijkstra(adj_matrix,start_node);
 			message = convertToCString(dist);
 			MessageBoxA(NULL, message.c_str(), "Distances", MB_OK | MB_ICONINFORMATION);
 			break;
