@@ -9,6 +9,7 @@
 // stupid define
 #define OnEnterButtonClick	1
 # define OnCalculateButtonClick	2
+# define OnEnterVertexCountButtonClick 3
 
 
 INT INF = 9999;
@@ -16,20 +17,40 @@ INT INF = 9999;
 using namespace std;
  
 // stupid init
-int nodes = 3;
+int nodes;
 
 HWND** adj_matrix;
+HWND vertexCount;
 HWND startVertex;
 
-string convertToCString(const vector<int>& dist) {
-	stringstream ss;
-	for (int i = 0; i < dist.size(); ++i) {
-		ss << dist[i];
-		if (i != dist.size() - 1) {
-			ss << ", ";
-		}
+WNDCLASS ParentWindow;
+WNDCLASS ChildWindow;
+WNDCLASS PreWindow;
+
+HWND WindowToLock;
+HWND ResLabel;
+
+LPCWSTR distToString(std::vector<int>& vecInt) {
+	std::wstringstream ss;
+
+	// Convert each integer to a string and append to stringstream
+	ss << "( ";
+	for (int i : vecInt) {
+		ss << i << ", ";
 	}
-	return ss.str();
+	ss << " )";
+
+	// Retrieve the resulting string from the stringstream
+	std::wstring result = ss.str();
+
+	// Allocate memory for the new string
+	wchar_t* buffer = new wchar_t[result.size() + 1];
+
+	// Copy the string contents to the allocated buffer
+	wcscpy_s(buffer, result.size() + 1, result.c_str());
+
+	// Return the pointer to the buffer
+	return buffer;
 }
 
 
@@ -41,7 +62,6 @@ int GetVal(HWND hWndEdit) {
 		
 		adjValue = atoi(buffer);
 	}
-
 	return adjValue;
 }
 
@@ -51,6 +71,7 @@ int GetVal(HWND hWndEdit) {
 vector<int> dijkstra(HWND** adj_matrix, int source) {
     int n = nodes;
 	int adj_val;
+
     vector<int> dist(n, INF);
     vector<bool> visited(n, false);
     dist[source] = 0;
@@ -122,6 +143,7 @@ void AdjBuilder(HWND hwnd)
 			}
 		}
 	}
+	CreateWindowA("button", "Enter", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 200, 400, 90, 30, hwnd, (HMENU)OnEnterButtonClick, NULL, NULL);
 }
 void DjikstraBuilder(HWND hwnd)
 {
@@ -134,25 +156,86 @@ void DjikstraBuilder(HWND hwnd)
 }
 
 
+void PreBuilder(HWND hwnd)
+{
+
+	// info labels 4 users
+	
+	CreateWindowA("static", "Vertex count:", WS_VISIBLE | WS_CHILD | ES_CENTER, 200, 200, 45, 30, hwnd, NULL, NULL, NULL);
+	// edit labels 
+	vertexCount = CreateWindowA("edit", "3", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 260, 200, 30, 30, hwnd, NULL, NULL, NULL);
+	CreateWindowA("button", "Enter", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 200, 240, 90, 30, hwnd, (HMENU) OnEnterVertexCountButtonClick, NULL, NULL);
+	ResLabel = CreateWindowA("static", "", WS_VISIBLE | WS_CHILD | ES_CENTER, 200, 280, 120, 30, hwnd, NULL, NULL, NULL);
+}
+
+
+LRESULT CALLBACK PreProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
+{
+	switch (msg)
+	{
+	case WM_CREATE:
+		PreBuilder(hWnd);
+		break;
+	case WM_COMMAND:
+		switch (wp)
+		{
+		case OnEnterVertexCountButtonClick:
+			nodes = GetVal(vertexCount);
+			if (nodes > 0 && nodes <= 5) {
+				CreateWindow(L"ParentWindow", L"ADJ Matrix", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 600, 100, 500, 500, NULL, NULL, NULL, NULL);
+				WindowToLock = hWnd;
+				EnableWindow(WindowToLock, false);
+			}
+			else
+			{
+				SetWindowText(ResLabel, L"Vertex valid range [1,5]");
+				 
+			}
+			break;
+		default: break;
+		}
+		break;
+	case WM_DESTROY:
+		
+		break;
+	default:return DefWindowProc(hWnd, msg, wp, lp);
+	}
+}
+
+
 LRESULT CALLBACK ParentProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 	string message;
 	int adjValue;
 
+
 	switch (msg)
 	{
 	case WM_CREATE:
 		AdjBuilder(hWnd);
+		
 		break;
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
+	 case WM_COMMAND:
+		switch (wp)
+		{
+		case OnEnterButtonClick:
+			
+			CreateWindow(L"ChildWindow", L"Distance Calculator", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 600, 100, 500, 500, NULL, NULL, NULL, NULL);
+			ShowWindow(hWnd, SW_HIDE);
+			
+			
+		default: break;
+		}
+	 case WM_DESTROY: break;
+
+	
 	default:return DefWindowProc(hWnd, msg, wp, lp);
 	}
 }
 LRESULT CALLBACK ChildProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
-	string message;
+	LPCWSTR message;
+	string test_msg;
 	int adjValue;
 	int start_node;// Example start node
 	vector<int> dist;
@@ -166,22 +249,27 @@ LRESULT CALLBACK ChildProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		{
 		case OnCalculateButtonClick:
 			start_node = GetVal(startVertex);
+			
+			
 			if (start_node < nodes)
 			{
 				dist = dijkstra(adj_matrix, start_node);
-				message = convertToCString(dist);
-				MessageBoxA(NULL, message.c_str(), "Distances", MB_OK | MB_ICONINFORMATION);
+				message = distToString(dist);
+				SetWindowText(ResLabel,message);
 			}
 			else 
 			{
-				MessageBoxA(NULL, "The vertex number cannot exceed the number of vertices in the graph", "Error!", MB_OK | MB_ICONERROR);
+				SetWindowText(ResLabel, L"Invalid vertex");
+				
 			}
+			EnableWindow(WindowToLock, true);
+			DestroyWindow(hWnd);
 			break;
 		default: break;
 		}
-		break;
+		
 	case WM_DESTROY:
-		PostQuitMessage(0);
+		// PostQuitMessage(0);
 		break;
 	default:return DefWindowProc(hWnd, msg, wp, lp);
 	}
@@ -191,22 +279,24 @@ LRESULT CALLBACK ChildProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 
 int WINAPI WinMain(HINSTANCE hInst,HINSTANCE hPrevInst,LPSTR args, int ncmdshow)
 {
-	WNDCLASS ParentWindow = BaseWindow((HBRUSH)COLOR_WINDOW, LoadCursor(NULL, IDC_ARROW), hInst, LoadIcon(NULL, IDI_WINLOGO),
-		L"ParentWindow", ParentProcedure);
+	 ParentWindow = BaseWindow((HBRUSH)COLOR_WINDOW, LoadCursor(NULL, IDC_ARROW), hInst, LoadIcon(NULL, IDI_WINLOGO),
+	L"ParentWindow", ParentProcedure);
 
-	WNDCLASS ChildWindow = BaseWindow((HBRUSH)COLOR_WINDOW, LoadCursor(NULL, IDC_ARROW), hInst, LoadIcon(NULL, IDI_WINLOGO),
-		L"ChildWindow",ChildProcedure);
+	 PreWindow = BaseWindow((HBRUSH)COLOR_WINDOW, LoadCursor(NULL, IDC_ARROW), hInst, LoadIcon(NULL, IDI_WINLOGO),
+		L"PreWindow", PreProcedure);
+
+	 ChildWindow = BaseWindow((HBRUSH)COLOR_WINDOW, LoadCursor(NULL, IDC_ARROW), hInst, LoadIcon(NULL, IDI_WINLOGO),
+	L"ChildWindow",ChildProcedure);
 
 	
 	if (!RegisterClassW(&ParentWindow)) { return -1; }
 	if (!RegisterClassW(&ChildWindow)) { return -1; }
+	if (!RegisterClassW(&PreWindow)) { return -1; }
 
 	MSG msg = { 0 };
 	
-
-	CreateWindow(L"ParentWindow",L"ADJ Matrix",  WS_OVERLAPPEDWINDOW | WS_VISIBLE, 100, 100, 500, 500, NULL, NULL, NULL, NULL);
-	CreateWindow(L"ChildWindow", L"Distance Calculator", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 600, 100, 500, 500, NULL, NULL, NULL, NULL);
-
+	CreateWindow(L"PreWindow", L"Vertex count window", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 100, 100, 500, 500, NULL, NULL, NULL, NULL);
+	
 	while (GetMessage(&msg, NULL, NULL, NULL))
 	{
 		TranslateMessage(&msg);
