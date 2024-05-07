@@ -166,9 +166,16 @@ LRESULT CALLBACK ChildProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		{
 		case OnCalculateButtonClick:
 			start_node = GetVal(startVertex);
-			dist = dijkstra(adj_matrix,start_node);
-			message = convertToCString(dist);
-			MessageBoxA(NULL, message.c_str(), "Distances", MB_OK | MB_ICONINFORMATION);
+			if (start_node < nodes)
+			{
+				dist = dijkstra(adj_matrix, start_node);
+				message = convertToCString(dist);
+				MessageBoxA(NULL, message.c_str(), "Distances", MB_OK | MB_ICONINFORMATION);
+			}
+			else 
+			{
+				MessageBoxA(NULL, "The vertex number cannot exceed the number of vertices in the graph", "Error!", MB_OK | MB_ICONERROR);
+			}
 			break;
 		default: break;
 		}
