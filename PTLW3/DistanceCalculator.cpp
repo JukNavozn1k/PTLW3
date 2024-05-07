@@ -27,15 +27,30 @@ WNDCLASS ParentWindow;
 WNDCLASS ChildWindow;
 WNDCLASS PreWindow;
 
-string convertToCString(const vector<int>& dist) {
-	stringstream ss;
-	for (int i = 0; i < dist.size(); ++i) {
-		ss << dist[i];
-		if (i != dist.size() - 1) {
-			ss << ", ";
-		}
+HWND WindowToLock;
+HWND ResLabel;
+
+LPCWSTR distToString(const std::vector<int>& vecInt) {
+	std::wstringstream ss;
+
+	// Convert each integer to a string and append to stringstream
+	ss << "( ";
+	for (int i : vecInt) {
+		ss << i << ", ";
 	}
-	return ss.str();
+	ss << " )";
+
+	// Retrieve the resulting string from the stringstream
+	std::wstring result = ss.str();
+
+	// Allocate memory for the new string
+	wchar_t* buffer = new wchar_t[result.size() + 1];
+
+	// Copy the string contents to the allocated buffer
+	wcscpy_s(buffer, result.size() + 1, result.c_str());
+
+	// Return the pointer to the buffer
+	return buffer;
 }
 
 
@@ -145,10 +160,12 @@ void PreBuilder(HWND hwnd)
 {
 
 	// info labels 4 users
+	
 	CreateWindowA("static", "Vertex count:", WS_VISIBLE | WS_CHILD | ES_CENTER, 200, 200, 45, 30, hwnd, NULL, NULL, NULL);
 	// edit labels 
 	vertexCount = CreateWindowA("edit", "3", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 260, 200, 30, 30, hwnd, NULL, NULL, NULL);
 	CreateWindowA("button", "Enter", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 200, 240, 90, 30, hwnd, (HMENU) OnEnterVertexCountButtonClick, NULL, NULL);
+	ResLabel = CreateWindowA("static", "", WS_VISIBLE | WS_CHILD | ES_CENTER, 200, 280, 120, 30, hwnd, NULL, NULL, NULL);
 }
 
 
@@ -164,13 +181,14 @@ LRESULT CALLBACK PreProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		{
 		case OnEnterVertexCountButtonClick:
 			nodes = GetVal(vertexCount);
-			if (nodes > 0) {
-				CreateWindow(L"ParentWindow", L"ADJ Matrix", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 100, 100, 500, 500, NULL, NULL, NULL, NULL);
-				DestroyWindow(hWnd);
+			if (nodes > 0 && nodes <= 5) {
+				CreateWindow(L"ParentWindow", L"ADJ Matrix", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 600, 100, 500, 500, NULL, NULL, NULL, NULL);
+				WindowToLock = hWnd;
+				EnableWindow(WindowToLock, false);
 			}
 			else
 			{
-				 MessageBoxA(NULL, "The vertex count must be positive","Error", MB_OK | MB_ICONERROR);
+				 MessageBoxA(NULL, "Vertex valid range [1,5]","Error", MB_OK | MB_ICONERROR);
 			}
 			break;
 		default: break;
@@ -215,7 +233,7 @@ LRESULT CALLBACK ParentProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 }
 LRESULT CALLBACK ChildProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
-	string message;
+	LPCWSTR message;
 	int adjValue;
 	int start_node;// Example start node
 	vector<int> dist;
@@ -229,18 +247,21 @@ LRESULT CALLBACK ChildProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		{
 		case OnCalculateButtonClick:
 			start_node = GetVal(startVertex);
+			EnableWindow(WindowToLock, true);
+			DestroyWindow(hWnd);
+			
 			if (start_node < nodes)
 			{
 				dist = dijkstra(adj_matrix, start_node);
-				message = convertToCString(dist);
-				MessageBoxA(NULL, message.c_str(), "Distances", MB_OK | MB_ICONINFORMATION);
+				message = distToString(dist);
+				
+				SetWindowText(ResLabel,message);
 			}
 			else 
 			{
 				MessageBoxA(NULL, "The vertex number cannot exceed the number of vertices in the graph", "Error!", MB_OK | MB_ICONERROR);
 			}
-			CreateWindow(L"PreWindow", L"Vertex count window", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 100, 100, 500, 500, NULL, NULL, NULL, NULL);
-			DestroyWindow(hWnd);
+			
 			break;
 		default: break;
 		}
