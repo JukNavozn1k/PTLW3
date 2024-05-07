@@ -30,7 +30,7 @@ WNDCLASS PreWindow;
 HWND WindowToLock;
 HWND ResLabel;
 
-LPCWSTR distToString(const std::vector<int>& vecInt) {
+LPCWSTR distToString(std::vector<int>& vecInt) {
 	std::wstringstream ss;
 
 	// Convert each integer to a string and append to stringstream
@@ -62,7 +62,6 @@ int GetVal(HWND hWndEdit) {
 		
 		adjValue = atoi(buffer);
 	}
-
 	return adjValue;
 }
 
@@ -72,6 +71,7 @@ int GetVal(HWND hWndEdit) {
 vector<int> dijkstra(HWND** adj_matrix, int source) {
     int n = nodes;
 	int adj_val;
+
     vector<int> dist(n, INF);
     vector<bool> visited(n, false);
     dist[source] = 0;
@@ -188,7 +188,8 @@ LRESULT CALLBACK PreProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			}
 			else
 			{
-				 MessageBoxA(NULL, "Vertex valid range [1,5]","Error", MB_OK | MB_ICONERROR);
+				SetWindowText(ResLabel, L"Vertex valid range [1,5]");
+				 
 			}
 			break;
 		default: break;
@@ -220,7 +221,7 @@ LRESULT CALLBACK ParentProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		case OnEnterButtonClick:
 			
 			CreateWindow(L"ChildWindow", L"Distance Calculator", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 600, 100, 500, 500, NULL, NULL, NULL, NULL);
-			DestroyWindow(hWnd);
+			ShowWindow(hWnd, SW_HIDE);
 			
 			
 		default: break;
@@ -234,6 +235,7 @@ LRESULT CALLBACK ParentProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 LRESULT CALLBACK ChildProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 {
 	LPCWSTR message;
+	string test_msg;
 	int adjValue;
 	int start_node;// Example start node
 	vector<int> dist;
@@ -247,21 +249,21 @@ LRESULT CALLBACK ChildProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 		{
 		case OnCalculateButtonClick:
 			start_node = GetVal(startVertex);
-			EnableWindow(WindowToLock, true);
-			DestroyWindow(hWnd);
+			
 			
 			if (start_node < nodes)
 			{
 				dist = dijkstra(adj_matrix, start_node);
 				message = distToString(dist);
-				
 				SetWindowText(ResLabel,message);
 			}
 			else 
 			{
-				MessageBoxA(NULL, "The vertex number cannot exceed the number of vertices in the graph", "Error!", MB_OK | MB_ICONERROR);
+				SetWindowText(ResLabel, L"Invalid vertex");
+				
 			}
-			
+			EnableWindow(WindowToLock, true);
+			DestroyWindow(hWnd);
 			break;
 		default: break;
 		}
@@ -294,9 +296,7 @@ int WINAPI WinMain(HINSTANCE hInst,HINSTANCE hPrevInst,LPSTR args, int ncmdshow)
 	MSG msg = { 0 };
 	
 	CreateWindow(L"PreWindow", L"Vertex count window", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 100, 100, 500, 500, NULL, NULL, NULL, NULL);
-	//CreateWindow(L"ParentWindow",L"ADJ Matrix",  WS_OVERLAPPEDWINDOW | WS_VISIBLE, 100, 100, 500, 500, NULL, NULL, NULL, NULL);
-	//CreateWindow(L"ChildWindow", L"Distance Calculator", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 600, 100, 500, 500, NULL, NULL, NULL, NULL);
-
+	
 	while (GetMessage(&msg, NULL, NULL, NULL))
 	{
 		TranslateMessage(&msg);
