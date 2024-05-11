@@ -1,15 +1,10 @@
 ﻿#include <Windows.h>
-#include <cstdlib> // for atoi
-#include <string> // for std::string
 #include <iostream>
-
 #include <vector>
-#include <queue>
 #include <sstream>
 // stupid define
-#define OnEnterButtonClick	1
-# define OnCalculateButtonClick	2
-# define OnEnterVertexCountButtonClick 3
+#define OnButtonClick	1
+
 
 
 INT INF = 9999;
@@ -30,8 +25,8 @@ WNDCLASS PreWindow;
 HWND WindowToLock;
 HWND ResLabel;
 
-LPCWSTR distToString(std::vector<int>& vecInt) {
-	std::wstringstream ss;
+LPCWSTR distToString(vector<int>& vecInt) {
+	wstringstream ss;
 
 	// Convert each integer to a string and append to stringstream
 	ss << "( ";
@@ -41,7 +36,7 @@ LPCWSTR distToString(std::vector<int>& vecInt) {
 	ss << " )";
 
 	// Retrieve the resulting string from the stringstream
-	std::wstring result = ss.str();
+	wstring result = ss.str();
 
 	// Allocate memory for the new string
 	wchar_t* buffer = new wchar_t[result.size() + 1];
@@ -143,7 +138,7 @@ void AdjBuilder(HWND hwnd)
 			}
 		}
 	}
-	CreateWindowA("button", "Enter", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 200, 400, 90, 30, hwnd, (HMENU)OnEnterButtonClick, NULL, NULL);
+	CreateWindowA("button", "Enter", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 200, 400, 90, 30, hwnd, (HMENU)OnButtonClick, NULL, NULL);
 }
 void DjikstraBuilder(HWND hwnd)
 {
@@ -152,7 +147,7 @@ void DjikstraBuilder(HWND hwnd)
 	CreateWindowA("static", "Start point:", WS_VISIBLE | WS_CHILD | ES_CENTER, 200, 200 , 45, 30, hwnd, NULL, NULL, NULL);
 	// edit labels 
 	startVertex =  CreateWindowA("edit", "0", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 260, 200, 30, 30, hwnd, NULL, NULL, NULL);
-	CreateWindowA("button", "Calculate", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 200, 240, 90, 30, hwnd, (HMENU) OnCalculateButtonClick, NULL, NULL);
+	CreateWindowA("button", "Calculate", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 200, 240, 90, 30, hwnd, (HMENU)OnButtonClick, NULL, NULL);
 }
 
 
@@ -164,7 +159,7 @@ void PreBuilder(HWND hwnd)
 	CreateWindowA("static", "Vertex count:", WS_VISIBLE | WS_CHILD | ES_CENTER, 200, 200, 45, 30, hwnd, NULL, NULL, NULL);
 	// edit labels 
 	vertexCount = CreateWindowA("edit", "3", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 260, 200, 30, 30, hwnd, NULL, NULL, NULL);
-	CreateWindowA("button", "Enter", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 200, 240, 90, 30, hwnd, (HMENU) OnEnterVertexCountButtonClick, NULL, NULL);
+	CreateWindowA("button", "Enter", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 200, 240, 90, 30, hwnd, (HMENU)OnButtonClick, NULL, NULL);
 	ResLabel = CreateWindowA("static", "", WS_VISIBLE | WS_CHILD | ES_CENTER, 200, 280, 120, 30, hwnd, NULL, NULL, NULL);
 }
 
@@ -179,7 +174,7 @@ LRESULT CALLBACK PreProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 	case WM_COMMAND:
 		switch (wp)
 		{
-		case OnEnterVertexCountButtonClick:
+		case OnButtonClick:
 			nodes = GetVal(vertexCount);
 			if (nodes > 0 && nodes <= 5) {
 				CreateWindow(L"ParentWindow", L"ADJ Matrix", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 600, 100, 500, 500, NULL, NULL, NULL, NULL);
@@ -218,7 +213,7 @@ LRESULT CALLBACK ParentProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 	 case WM_COMMAND:
 		switch (wp)
 		{
-		case OnEnterButtonClick:
+		case OnButtonClick:
 			
 			CreateWindow(L"ChildWindow", L"Distance Calculator", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 600, 100, 500, 500, NULL, NULL, NULL, NULL);
 			ShowWindow(hWnd, SW_HIDE);
@@ -247,7 +242,7 @@ LRESULT CALLBACK ChildProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 	case WM_COMMAND:
 		switch (wp)
 		{
-		case OnCalculateButtonClick:
+		case OnButtonClick:
 			start_node = GetVal(startVertex);
 			
 			
