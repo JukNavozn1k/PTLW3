@@ -1,18 +1,14 @@
-﻿#include <Windows.h>
+﻿#define OnButtonClick	1
+
+#include <Windows.h>
 #include <iostream>
 #include <vector>
 #include <sstream>
-// stupid define
-#define OnButtonClick	1
-
-
-
-INT INF = 9999;
 
 using namespace std;
  
-// stupid init
 int nodes;
+int INF = 9999;
 
 HWND** adj_matrix;
 HWND vertexCount;
@@ -28,40 +24,27 @@ HWND ResLabel;
 LPCWSTR distToString(vector<int>& vecInt) {
 	wstringstream ss;
 
-	// Convert each integer to a string and append to stringstream
 	ss << "( ";
 	for (int i : vecInt) {
 		ss << i << ", ";
 	}
 	ss << " )";
 
-	// Retrieve the resulting string from the stringstream
 	wstring result = ss.str();
-
-	// Allocate memory for the new string
 	wchar_t* buffer = new wchar_t[result.size() + 1];
-
-	// Copy the string contents to the allocated buffer
 	wcscpy_s(buffer, result.size() + 1, result.c_str());
 
-	// Return the pointer to the buffer
 	return buffer;
 }
-
 
 int GetVal(HWND hWndEdit) {
 	char buffer[10];
 	int adjValue = 0; 
 
-	if (GetWindowTextA(hWndEdit, buffer, sizeof(buffer)) > 0) {
-		
-		adjValue = atoi(buffer);
-	}
+	if (GetWindowTextA(hWndEdit, buffer, sizeof(buffer)) > 0) {adjValue = atoi(buffer);}
+
 	return adjValue;
 }
-
-
-
 
 vector<int> dijkstra(HWND** adj_matrix, int source) {
     int n = nodes;
@@ -142,10 +125,7 @@ void AdjBuilder(HWND hwnd)
 }
 void DjikstraBuilder(HWND hwnd)
 {
-	
-	// info labels 4 users
 	CreateWindowA("static", "Start point:", WS_VISIBLE | WS_CHILD | ES_CENTER, 200, 200 , 45, 30, hwnd, NULL, NULL, NULL);
-	// edit labels 
 	startVertex =  CreateWindowA("edit", "0", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 260, 200, 30, 30, hwnd, NULL, NULL, NULL);
 	CreateWindowA("button", "Calculate", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 200, 240, 90, 30, hwnd, (HMENU)OnButtonClick, NULL, NULL);
 }
@@ -153,11 +133,7 @@ void DjikstraBuilder(HWND hwnd)
 
 void PreBuilder(HWND hwnd)
 {
-
-	// info labels 4 users
-	
 	CreateWindowA("static", "Vertex count:", WS_VISIBLE | WS_CHILD | ES_CENTER, 200, 200, 45, 30, hwnd, NULL, NULL, NULL);
-	// edit labels 
 	vertexCount = CreateWindowA("edit", "3", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 260, 200, 30, 30, hwnd, NULL, NULL, NULL);
 	CreateWindowA("button", "Enter", WS_VISIBLE | WS_CHILD | ES_CENTER | ES_NUMBER, 200, 240, 90, 30, hwnd, (HMENU)OnButtonClick, NULL, NULL);
 	ResLabel = CreateWindowA("static", "", WS_VISIBLE | WS_CHILD | ES_CENTER, 200, 280, 120, 30, hwnd, NULL, NULL, NULL);
@@ -180,19 +156,17 @@ LRESULT CALLBACK PreProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 				CreateWindow(L"ParentWindow", L"ADJ Matrix", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 600, 100, 500, 500, NULL, NULL, NULL, NULL);
 				WindowToLock = hWnd;
 				EnableWindow(WindowToLock, false);
+				
 			}
-			else
-			{
-				SetWindowText(ResLabel, L"Vertex valid range [1,5]");
-				 
-			}
+			else { SetWindowText(ResLabel, L"Vertex valid range [1,5]"); }
 			break;
 		default: break;
 		}
 		break;
 	case WM_DESTROY:
-		
+		PostQuitMessage(0);
 		break;
+
 	default:return DefWindowProc(hWnd, msg, wp, lp);
 	}
 }
@@ -217,8 +191,6 @@ LRESULT CALLBACK ParentProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 			
 			CreateWindow(L"ChildWindow", L"Distance Calculator", WS_OVERLAPPEDWINDOW | WS_VISIBLE, 600, 100, 500, 500, NULL, NULL, NULL, NULL);
 			ShowWindow(hWnd, SW_HIDE);
-			
-			
 		default: break;
 		}
 	 case WM_DESTROY: break;
@@ -252,20 +224,15 @@ LRESULT CALLBACK ChildProcedure(HWND hWnd, UINT msg, WPARAM wp, LPARAM lp)
 				message = distToString(dist);
 				SetWindowText(ResLabel,message);
 			}
-			else 
-			{
-				SetWindowText(ResLabel, L"Invalid vertex");
-				
-			}
+			else { SetWindowText(ResLabel, L"Invalid vertex"); }
+			
 			EnableWindow(WindowToLock, true);
 			DestroyWindow(hWnd);
 			break;
 		default: break;
 		}
 		
-	case WM_DESTROY:
-		// PostQuitMessage(0);
-		break;
+	case WM_DESTROY: break;
 	default:return DefWindowProc(hWnd, msg, wp, lp);
 	}
 }
